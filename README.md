@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CSC 249 - Project 4 - ICMP Ping and Traceroute
 
 _Attribution: this assignment is based on ICMP Pinger Lab and ICMP Traceroute Lab from Computer Networking: a Top-Down Approach by Jim Kurose and Keith Ross. It was modified for use in CSC249: Networks at Smith College by R. Jordan Crouser in Fall 2022, and further modified by B. Cheikes for use in Fall 2023._
@@ -138,3 +139,6 @@ _12/15_ (B-) Only one of `ping` or `traceroute` implementations function and beh
 _11.5/15_ (C+) Neither `ping` nor `traceroute` implementations function. Analyses are derived from built-in applications but are otherwise complete and reflect breadth and depth of understanding of the underlying networking factors that might explain the observations.
 
 _11/15 or less_ (C or lower) Missing deliverables. Code that doesn't run. Analyses that are incomplete, inaccurate, and/or reflect poor or limited understanding of the associated networking factors.
+=======
+# ping
+>>>>>>> f9f73137baac91bab7a146b98266acda6fcff7f2
