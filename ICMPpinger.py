@@ -67,6 +67,13 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
             # TODO: Fetch the ICMP header from the IP packet
             # Soluton can be implemented in 6 lines of Python code.
 
+            #look at length of recPacket
+            #know where ICMP header sits in comparison to start of IP packet
+            #request vs. reply ICMP echo
+            #use wireshark
+            #recPacket is IP packet, header + data
+            #the response will include the time that you sent originally, subtract to find roudtrip time
+
         #-------------#
         # Fill in end #
         #-------------#
@@ -83,7 +90,7 @@ def sendOnePing(mySocket, destAddr, ID):
     # Make a dummy header with a 0 checksum
  
     # struct -- Interpret strings as packed binary data
-    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1) 
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1) #LOOK INTO STRUCT.PACK, b's rep bytes
     data = struct.pack("d", time.time())
 
     # Calculate the checksum on the data and the dummy header. 
