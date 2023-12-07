@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # CSC 249 - Project 4 - ICMP Ping and Traceroute
 
 _Attribution: this assignment is based on ICMP Pinger Lab and ICMP Traceroute Lab from Computer Networking: a Top-Down Approach by Jim Kurose and Keith Ross. It was modified for use in CSC249: Networks at Smith College by R. Jordan Crouser in Fall 2022, and further modified by B. Cheikes for use in Fall 2023._
