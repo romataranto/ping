@@ -62,11 +62,17 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
     while True:
         startedSelect = time.time()
 
+        #wait for the socket to become ready for reading
+        #timeLeft = max time function will wait for socket to be ready
+        #howLongInSelect counts how long function is waiting
         whatReady = select.select([mySocket], [], [], timeLeft) 
         howLongInSelect = (time.time() - startedSelect)
+
+        #checks to see if the list of sockets ready for reading is empty (AKA it timed out)
         if whatReady[0] == []: # Timeout 
             return "Request timed out."
 
+        #records time when ICMP echo reply packet is received, stores info from packet
         timeReceived = time.time()
         recPacket, addr = mySocket.recvfrom(1024)
 
@@ -76,6 +82,30 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
 
             # TODO: Fetch the ICMP header from the IP packet
             # Soluton can be implemented in 6 lines of Python code.
+
+        ####### NOTES #######
+
+        # recPacket is in bytes
+        # in IPv4 header, the last 4 bits in the first byte is called IHL (internet header length)
+        # to calculate the length of IP header, multiply IHL by 4
+
+        #pulls out the IHL value and assigns it to header_length
+        ip_header_length = (recPacket[0] & 0xF) * 4
+
+        print("IP header len = ", ip_header_length)
+
+        #icmp header is 8 bytes, so starting where the IP header ends (header_length) and extending 
+        # 8 more bytes to include the standard size for an ICMP header
+        icmp_header = recPacket[ip_header_length:ip_header_length + 8]
+
+        #unpacking using the same format that was used to pack in sendOnePing
+        icmp_header_val = struct.unpack("bbHHh", icmp_header)
+
+        print(type(icmp_header_val))
+        print(icmp_header_val)
+
+        #icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_values
+
 
             #look at length of recPacket
             #know where ICMP header sits in comparison to start of IP packet
@@ -88,8 +118,10 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         # Fill in end #
         #-------------#
 
+        #updates remaining time
         timeLeft = timeLeft - howLongInSelect 
         
+        #checks if remaining time is less than or equal to 0, ensures loop continues for specified time
         if timeLeft <= 0:
             return "Request timed out."
 
@@ -106,7 +138,7 @@ def sendOnePing(mySocket, destAddr, ID):
     # "bbHHh" = 1 byte, 1 byte, 2 shorts, 1 short
     #data line creates the data portion of the packet which includes time stamp in 
     # a packed double format "d"
-    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1) #LOOK INTO STRUCT.PACK, b's rep bytes
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1) #LOOK INTO STRUCT.PACK
     data = struct.pack("d", time.time())
 
     # Calculate the checksum on the data and the dummy header. 
@@ -175,4 +207,6 @@ def ping(host, timeout=1, repeat=3):
 if __name__ == "__main__":
     # get target address from command line
     target = sys.argv[1]
+
+    #takes URL, since ping function will resolve domain name
     ping(target)
