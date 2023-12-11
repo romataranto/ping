@@ -30,6 +30,20 @@ def build_packet():
         # TODO: Make the header in a similar way to the ping exercise.
         # Append checksum to the header.
         # Solution can be implemented in 10 lines of Python code.
+
+    myChecksum = 0
+
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1) #LOOK INTO STRUCT.PACK
+    data = struct.pack("d", time.time())
+
+    # Calculate the checksum on the data and the dummy header. 
+    myChecksum = checksum(''.join(map(chr, header+data)))
+
+    if sys.platform == 'darwin':
+        # Convert 16-bit integers from host to network byte order 
+        myChecksum = htons(myChecksum) & 0xffff
+    else:
+        myChecksum = htons(myChecksum)
         
     #-------------#
     # Fill in end #

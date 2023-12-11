@@ -83,8 +83,6 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
             # TODO: Fetch the ICMP header from the IP packet
             # Soluton can be implemented in 6 lines of Python code.
 
-        ####### NOTES #######
-
         # recPacket is in bytes
         # in IPv4 header, the last 4 bits in the first byte is called IHL (internet header length)
         # to calculate the length of IP header, multiply IHL by 4
@@ -92,21 +90,40 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         #pulls out the IHL value and assigns it to header_length
         ip_header_length = (recPacket[0] & 0xF) * 4
 
-        print("IP header len = ", ip_header_length)
+        # print("IP header len = ", ip_header_length)
 
         #icmp header is 8 bytes, so starting where the IP header ends (header_length) and extending 
         # 8 more bytes to include the standard size for an ICMP header
         icmp_header = recPacket[ip_header_length:ip_header_length + 8]
 
         #unpacking using the same format that was used to pack in sendOnePing
+        #icmp_header_val gives a tuple with: type, code, checksum, ID, sequence
         icmp_header_val = struct.unpack("bbHHh", icmp_header)
 
-        print(type(icmp_header_val))
         print(icmp_header_val)
 
-        #icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_values
+        #stores info in ICMP header into separate variables
+        icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_val
+
+        #need the data portion of recPacket since that's where the timestamp is
+        #calculate the start position of the data portion
+        data_start_position = ip_header_length + len(icmp_header)
+
+        #extract the data portion and unpack
+        data_portion = recPacket[data_start_position:]
+        timestamp_received = struct.unpack("d", data_portion)[0]
+        print("Received Timestamp:", timestamp_received)
 
 
+        if icmp_id == ID:
+            rtt = timeReceived - timestamp_received
+            print(f"Ping successful. RTT: {rtt} seconds")
+            return round(rtt * 1000, 2)
+        else:
+            print("Received ICMP response does not match the expected request.")
+
+
+        #office hours notes
             #look at length of recPacket
             #know where ICMP header sits in comparison to start of IP packet
             #request vs. reply ICMP echo
@@ -198,7 +215,7 @@ def ping(host, timeout=1, repeat=3):
     numPings = 1
     while (numPings <= repeat) :
         delay = doOnePing(dest, timeout) 
-        print(f"Ping {numPings} RTT {delay} sec")
+        print(f"Ping {numPings} RTT {delay} millisec")
         time.sleep(1) # one second 
         numPings += 1
     return delay
