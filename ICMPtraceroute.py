@@ -44,15 +44,17 @@ def build_packet(ID):
         myChecksum = htons(myChecksum) & 0xffff
     else:
         myChecksum = htons(myChecksum)
-        
+    
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+
     #-------------#
     # Fill in end #
     #-------------#
 
     # Don’t send the packet yet , just return the final packet in this function.
     packet = header + data
-    print(type(packet))
-    print(packet)
+    #print(type(packet))
+    #print(packet)
     return packet
 
 def get_route(hostname):
@@ -84,12 +86,15 @@ def get_route(hostname):
                 mySocket.sendto(d, (hostname, 0))
                 t= time.time()
                 startedSelect = time.time()
+
+                timeLeft = max(0, timeLeft)
+
                 whatReady = select.select([mySocket], [], [], timeLeft)
                 howLongInSelect = (time.time() - startedSelect)
 
                 if whatReady[0] == []: # Timeout
                     print(" * * * Request timed out.")
-                    print("here")
+                    #print("here")
 
                 recvPacket, addr = mySocket.recvfrom(1024)
                 timeReceived = time.time()
@@ -97,7 +102,7 @@ def get_route(hostname):
 
                 if timeLeft <= 0:
                     print(" * * * Request timed out.")
-                    print("here 2")
+                    #print("here 2")
 
 
             except timeout:
@@ -114,9 +119,7 @@ def get_route(hostname):
                 icmp_header = recvPacket[ip_header_length:ip_header_length + 8]
                 icmp_header_val = struct.unpack("bbHHh", icmp_header)
                 icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_val
-                print("here 3")
-
-
+                #print("here 3")
 
                 #-------------#
                 # Fill in end #

@@ -100,7 +100,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         #icmp_header_val gives a tuple with: type, code, checksum, ID, sequence
         icmp_header_val = struct.unpack("bbHHh", icmp_header)
 
-        print(icmp_header_val)
+        #print(icmp_header_val)
 
         #stores info in ICMP header into separate variables
         icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_val
@@ -112,7 +112,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         #extract the data portion and unpack
         data_portion = recPacket[data_start_position:]
         timestamp_received = struct.unpack("d", data_portion)[0]
-        print("Received Timestamp:", timestamp_received)
+        #print("Received Timestamp:", timestamp_received)
 
 
         if icmp_id == ID:
