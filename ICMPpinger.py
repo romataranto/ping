@@ -188,7 +188,7 @@ def doOnePing(destAddr, timeout):
     # SOCK_RAW is a powerful socket type. For more details:	http://sock-raw.org/papers/sock_raw
     mySocket = socket(AF_INET, SOCK_RAW, icmp)
 
-    #reutrns current process ID
+    #returns current process ID
     #bitwise AND to ensure ID is within 16 bit range
     #sends ping
     #receives ping and processes packet to calculate round-trip time ("delay")

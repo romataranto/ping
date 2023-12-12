@@ -18,7 +18,7 @@ TRIES = 2
 # The packet that we shall send to each router along the path is the ICMP echo
 # request packet, which is exactly what we had used in the ICMP ping exercise.
 # We shall use the same packet that we built in the Ping exercise
-def build_packet():
+def build_packet(ID):
     # In the sendOnePing() method of the ICMP Ping exercise, firstly the header of our
     # packet to be sent was made, secondly the checksum was appended to the header and
     # then finally the complete packet was sent to the destination.
@@ -51,6 +51,8 @@ def build_packet():
 
     # Don’t send the packet yet , just return the final packet in this function.
     packet = header + data
+    print(type(packet))
+    print(packet)
     return packet
 
 def get_route(hostname):
@@ -66,6 +68,9 @@ def get_route(hostname):
                 # TODO: Make a raw socket named mySocket
                 # Solution can be implemented in 2 lines of Python code.
 
+            icmp = getprotobyname("icmp")
+            mySocket = socket(AF_INET, SOCK_RAW, icmp)
+
             #-------------#
             # Fill in end #
             #-------------#
@@ -74,7 +79,8 @@ def get_route(hostname):
             mySocket.settimeout(TIMEOUT)
 
             try:
-                d = build_packet()
+                myID = os.getpid() & 0xFFFF
+                d = build_packet(myID)
                 mySocket.sendto(d, (hostname, 0))
                 t= time.time()
                 startedSelect = time.time()
@@ -83,6 +89,7 @@ def get_route(hostname):
 
                 if whatReady[0] == []: # Timeout
                     print(" * * * Request timed out.")
+                    print("here")
 
                 recvPacket, addr = mySocket.recvfrom(1024)
                 timeReceived = time.time()
@@ -90,6 +97,8 @@ def get_route(hostname):
 
                 if timeLeft <= 0:
                     print(" * * * Request timed out.")
+                    print("here 2")
+
 
             except timeout:
                 continue
@@ -101,22 +110,29 @@ def get_route(hostname):
 
                     #TODO: Fetch the icmp type from the IP packet
                     # Solution can be implemented in 2 lines of Python code.
+                ip_header_length = (recvPacket[0] & 0xF) * 4
+                icmp_header = recvPacket[ip_header_length:ip_header_length + 8]
+                icmp_header_val = struct.unpack("bbHHh", icmp_header)
+                icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq = icmp_header_val
+                print("here 3")
+
+
 
                 #-------------#
                 # Fill in end #
                 #-------------#
                 
-                if types == 11:
+                if icmp_type == 11:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 +bytes])[0]
                     print(" %d rtt=%.0f ms %s" %(ttl, (timeReceived -t)*1000, addr[0]))
 
-                elif types == 3:
+                elif icmp_type == 3:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
                     print(" %d rtt=%.0f ms %s" %(ttl, (timeReceived-t)*1000, addr[0]))
 
-                elif types == 0:
+                elif icmp_type == 0:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
                     print(" %d rtt=%.0f ms %s" %(ttl, (timeReceived - timeSent)*1000, addr[0]))
